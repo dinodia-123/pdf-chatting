@@ -18,16 +18,14 @@ def generate_embeddings(text):
 
 # Get answer using ChatCompletion
 def get_answer(question, context):
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Context: {context}\n\nQuestion: {question}"}
-        ],
-        max_tokens=150,
-        temperature=0.5
+    prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
+    response = openai.completions.create(
+        model = "gpt-3.5-turbo-instruct",
+       temperature = 0,
+        prompt=prompt,
+        max_tokens=150
     )
-    return response['choices'][0]['message']['content'].strip()
+    return response.choices[0].text.strip()
 
 # Sidebar
 st.sidebar.title("PDF Chat Assistant")
