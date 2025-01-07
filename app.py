@@ -17,18 +17,13 @@ def extract_text_from_pdf(file):
 # Function to get answers using OpenAI API
 def get_answer(question, context):
     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
-    
-    # Use the Chat API for gpt-3.5-turbo
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # You can also use gpt-4 or other models if needed
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Context: {context}\n\nQuestion: {question}"}
-        ],
-        max_tokens=150,
-        temperature=0.5
+    response = openai.completions.create(
+        model = "gpt-3.5-turbo-instruct",
+       temperature = 0,
+        prompt=prompt,
+        max_tokens=150
     )
-    return response['choices'][0]['message']['content'].strip()
+    return response.choices[0].text.strip()
 
 # Streamlit UI
 st.set_page_config(page_title="Chat with PDF", layout="wide")
