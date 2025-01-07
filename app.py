@@ -26,10 +26,13 @@ def split_text(text, chunk_size=1000):
 def get_answer(question, context):
     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
     try:
-        response = openai.Completion.create(
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",  # gpt-3.5-turbo-instruct is not available, gpt-3.5-turbo is valid
+            messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"Context: {context}\n\nQuestion: {question}"}
+        ],
             temperature=0,
-            prompt=prompt,
             max_tokens=150
         )
         return response.choices[0].text.strip()
