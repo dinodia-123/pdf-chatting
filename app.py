@@ -3,7 +3,7 @@ import pdfplumber
 from sentence_transformers import SentenceTransformer
 import openai
 
-# Set your OpenAI API key directly (use secret management in production)
+# Set your OpenAI API key
 openai.api_key = "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"
 
 # Extract text from PDF
@@ -29,11 +29,20 @@ def get_answer(question, context):
     )
     return response['choices'][0]['message']['content'].strip()
 
-# Streamlit app UI
-st.title("PDF Question-Answering App")
-st.write("Upload a PDF, extract text, and get answers to your questions.")
+# Sidebar
+st.sidebar.title("PDF Chat Assistant")
+st.sidebar.write("Upload PDFs and ask questions based on their content.")
 
-uploaded_files = st.file_uploader("Upload PDF(s)", type="pdf", accept_multiple_files=True)
+uploaded_files = st.sidebar.file_uploader("Upload PDF(s)", type="pdf", accept_multiple_files=True)
+
+st.sidebar.write("---")
+st.sidebar.write("Built with 💙 using Streamlit, SentenceTransformers, and OpenAI.")
+
+# Main app layout
+st.title("📄 PDF Chat Assistant")
+st.write(
+    "Upload one or more PDFs, extract their content, and ask questions based on the extracted text."
+)
 
 if uploaded_files:
     all_texts = []
@@ -45,14 +54,23 @@ if uploaded_files:
         all_texts.append(text)
     
     context = " ".join(all_texts)
-    st.write("Extracted Text Preview:")
-    st.text(context[:1000])  # Show first 1000 characters of extracted text
     
-    question = st.text_input("Ask a question based on the PDF content:")
+    # Display extracted text
+    with st.expander("📜 Extracted Text Preview", expanded=False):
+        st.text_area("Preview", context[:3000], height=200)
+    
+    # User question input
+    question = st.text_input("💬 Ask a question based on the PDF content:")
     
     if question:
-        answer = get_answer(question, context)
-        st.write("Answer:")
+        with st.spinner("Generating answer..."):
+            answer = get_answer(question, context)
+        
+        st.success("Answer:")
         st.write(answer)
+else:
+    st.info("Please upload at least one PDF to start.")
+
+
 
 
