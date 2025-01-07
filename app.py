@@ -1,8 +1,8 @@
-
 import streamlit as st
-import openai
+from google.colab import files
 import pdfplumber
 from sentence_transformers import SentenceTransformer
+import openai
 
 # Set your OpenAI API key
 openai.api_key = "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"
@@ -13,34 +13,26 @@ embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 # Function to extract text from PDF
 def extract_text_from_pdf(file):
     with pdfplumber.open(file) as pdf:
-        text = ""
-        for page in pdf.pages:
-            text += page.extract_text()
-    return text
-
-# Function to split text into manageable chunks
-def split_text(text, chunk_size=1000):
-    return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+        return " ".join([page.extract_text() for page in pdf.pages])
 
 # Function to get answers using OpenAI API
 def get_answer(question, context):
     prompt = f"Context: {context}\n\nQuestion: {question}\nAnswer:"
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # gpt-3.5-turbo-instruct is not available, gpt-3.5-turbo is valid
-            messages=[
+    
+    # Use the Chat API for gpt-3.5-turbo
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # You can also use gpt-4 or other models if needed
+        messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": f"Context: {context}\n\nQuestion: {question}"}
         ],
-            temperature=0,
-            max_tokens=150
-        )
-        return response.choices[0].text.strip()
-    except Exception as e:
-        return f"Error: {str(e)}"
+        max_tokens=150,
+        temperature=0.5
+    )
+    return response['choices'][0]['message']['content'].strip()
 
 # Streamlit UI
-st.set_page_config(page_title="Chat with Your PDF", layout="wide")
+st.set_page_config(page_title="Chat with PDF", layout="wide")
 st.title("📄 Chat with Your PDF")
 
 # Sidebar for PDF upload
@@ -57,7 +49,8 @@ if uploaded_file is not None:
     st.text_area("Content from PDF:", text, height=300)
 
     # Split text into manageable chunks
-    chunks = split_text(text)
+    chunk_size = 1000
+    chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
     st.write(f"🔹 **PDF split into {len(chunks)} chunks for efficient processing.**")
 
     # Ask a question
@@ -79,3 +72,4 @@ if uploaded_file is not None:
 
 else:
     st.info("Please upload a PDF file to get started.")
+
