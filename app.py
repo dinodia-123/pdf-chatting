@@ -4,7 +4,7 @@ from sentence_transformers import SentenceTransformer
 import openai
 
 # Set your OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+openai.api_key = "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"
 
 # Initialize the embedding model
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
