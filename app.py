@@ -1,5 +1,4 @@
 import streamlit as st
-from google.colab import files
 import pdfplumber
 from sentence_transformers import SentenceTransformer
 import openai
@@ -72,4 +71,5 @@ if uploaded_file is not None:
 
 else:
     st.info("Please upload a PDF file to get started.")
+
 
